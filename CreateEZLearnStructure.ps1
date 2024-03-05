@@ -6,8 +6,8 @@ $classes = @('Form_1', 'Form_2', 'Form_3', 'Form_4')
 $courses = @('Mathematics', 'Science', 'English', 'History', 'Geography')
 
 # Define a list of first and last names (Add more names or change as needed)
-$firstNames = @('Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Jamie', 'Riley', 'Quinn', 'Skyler', 'Drew')
-$lastNames = @('Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor')
+$firstNames = @('Alex', 'Lizzavan', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Jamie', 'Riley', 'Quinn', 'Skyler', 'Drew')
+$lastNames = @('Smith','Van', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor')
 
 # Create the Classes directory and subdirectories
 $classes | ForEach-Object {
