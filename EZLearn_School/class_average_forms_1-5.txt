@@ -4,3 +4,5 @@ Form_2 == 11.04
 Form_3 == 6.01
 Form_4 == 9.07
 Form_5 == 8.11
+
+Average for forms 1-5 for first term academic year 2023/2024 == 8.46
