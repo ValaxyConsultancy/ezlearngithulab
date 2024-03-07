@@ -2,12 +2,12 @@
 $baseDirectory = "C:\Users\mnyuy\OneDrive\Desktop\ezlearngitlab\EZLearn_School"
 
 # Define classes and courses
-$classes = @('Form_1', 'Form_2', 'Form_3', 'Form_4')
-$courses = @('Mathematics', 'Science', 'English', 'History', 'Geography')
+$classes = @('Form_1', 'Form_2', 'Form_3', 'Form_4', "Form_5")
+$courses = @('Mathematics', 'Science', 'English', 'History', 'Geography', "literture")
 
 # Define a list of first and last names (Add more names or change as needed)
 $firstNames = @('Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Jamie', 'Riley', 'Quinn', 'Skyler', 'Drew')
-$lastNames = @('Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor')
+$lastNames = @('Smith', 'Amos', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Cho', 'Moore', 'Taylor')
 
 # Create the Classes directory and subdirectories
 $classes | ForEach-Object {
