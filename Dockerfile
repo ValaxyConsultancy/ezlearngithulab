@@ -11,7 +11,7 @@ COPY ./target/TomcatMavenApp-2.3.war /usr/local/tomcat/webapps/ROOT.war
 ENV JAVA_OPTS="-Dsome.option=xyz"
 
 # Expose the port Tomcat will run on
-EXPOSE 8080
+EXPOSE 8081
 
 # Start Tomcat
 CMD ["catalina.sh", "run"]
