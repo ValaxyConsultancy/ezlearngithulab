@@ -3,6 +3,7 @@
 # Follow these steps to setup and deploy java app to k8s
 Make sure you use the user-data.sh script when creating the jenkins master now. After the instance is up and running, run the folowing commands on ther terminal to confirm installation;
 
+```bash
 aws --version
 
 kubectl version --client
@@ -10,7 +11,7 @@ kubectl version --client
 eksctl version
 
 eksctl version
-
+```
 
 # Step 1  Creating and Attaching an IAM Role to the Jenkins Instance
 To attach an IAM role to an EC2 instance for EKS management:
@@ -35,9 +36,9 @@ You won’t need to manually configure AWS credentials on the instance, enhancin
 
 # Now create the cluster with the following command
 
-
+```bash
 eksctl create cluster --name ezlearn-cluster --region us-east-1 --node-type t3.medium --nodes 2
-
+```
 
 
 First, ensure your EKS cluster is ready.
@@ -80,8 +81,9 @@ Add credentials for kubernetes
 
 Go to jenkins terminal and run the command 
 
+```bash
 sudo cat .kube/config
-
+```
 copy the out and save in your local computer with name config
 
 Add Credentials:
@@ -118,13 +120,13 @@ Build / Publish Docker Image:
 
 Use a shell step to log in to Docker, build the Docker image, and push it to Docker Hub.
 
-
+```bash
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 docker build -t yourdockerhubuser/tomcatmavenapp:latest .
 
 docker push yourdockerhubuser/tomcatmavenapp:latest 
-
+```
 
 # Deploy to Kubernetes:
 
@@ -139,14 +141,17 @@ This setup will expose the path to the kubeconfig file as an environment variabl
 
 Use the $KUBECONFIG environment variable in your shell commands to reference the kubeconfig file:
 
-
+```bash
 kubectl --kubeconfig $KUBECONFIG apply -f deployment.yml
 kubectl --kubeconfig $KUBECONFIG apply -f service.yml
-Run the Job:
+```
+
+# Run the Job:
 Click Build Now to start the Jenkins job.
 Verify Deployment:
 Check the deployment in Jenkins console output.
 Use kubectl commands to verify the deployment on your EKS cluster:
 
+```bash
 kubectl get deployments
 kubectl get services
