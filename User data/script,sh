@@ -67,60 +67,8 @@ tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp
 rm eksctl_$PLATFORM.tar.gz
 mv /tmp/eksctl /usr/local/bin
 
-
-
 # Install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x ./kubectl
 mv ./kubectl /usr/local/bin/kubectl
-
-
-
-#!/bin/bash
-sudo apt update -y
-sudo apt install openjdk-11-jdk -y
-
-# Jenkins installation for Ubuntu
-sudo curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]  https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt update
-sudo apt install jenkins -y
-sudo systemctl enable jenkins
-sudo systemctl start jenkins
-
-# Maven installation
-sudo apt update
-sudo apt install -y wget ca-certificates curl gnupg lsb-release
-wget https://mirrors.estointernet.in/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
-sudo tar -xvf apache-maven-3.6.3-bin.tar.gz -C /opt
-sudo mv /opt/apache-maven-3.6.3 /opt/maven
-
-sudo bash -c 'cat <<EOF >/etc/profile.d/maven.sh
-export M2_HOME=/opt/maven
-export MAVEN_HOME=/opt/maven
-export PATH=\$PATH:\$M2_HOME/bin
-EOF'
-
-
-# Docker installation
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io
-sudo systemctl enable docker
-
-# Cleanup
-sudo rm /tmp/apache-maven-3.6.3-bin.tar.gz
-
-# setup aws cli and eksctl
-sudo apt-get update
-sudo apt-get install awscli -y
-sudo curl --silent --location "/v0.124.0/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-sudo mv /tmp/eksctl /usr/local/bin
-sudo chmod +x /usr/local/bin/eksctl
-
-# Install kubectl
-sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo chmod +x ./kubectl
-sudo mv ./kubectl /usr/local/bin/kubectl
+systemctl restart jenkins
