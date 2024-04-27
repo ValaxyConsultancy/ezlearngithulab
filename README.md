@@ -1,14 +1,18 @@
 # Valavaxyconsultancyapi
 
 # Follow these steps to setup and deploy java app to k8s
+Make sure you use the user-data.sh script when creating the jenkins master now. After the instance is up and running, run the folowing commands on ther terminal to confirm installation;
 
 aws --version
+
 kubectl version --client
+
 eksctl version
+
 eksctl version
 
 
-# Step 1 Attaching the IAM Role to an EC2 Instance
+# Step 1  Creating and Attaching an IAM Role to the Jenkins Instance
 To attach an IAM role to an EC2 instance for EKS management:
 
 Create the IAM Role:
@@ -16,7 +20,7 @@ Create the IAM Role:
 Navigate to the IAM service in the AWS Management Console.
 Create a new role and select AWS service as the type of trusted entity, choosing EC2 as the service that will use this role.
 
-Attach policies that grant permissions needed to manage EKS. Common policies include:
+Attach policies that grant permissions needed to manage EKS. 
 just give admin access 
 Attach the Role to the EC2 Instance:
 Go to the EC2 dashboard in the AWS Management Console.
@@ -29,15 +33,12 @@ Once the IAM role is attached:
 Any AWS CLI or SDK tool running on the instance will automatically use the credentials provided by the IAM role.
 You won’t need to manually configure AWS credentials on the instance, enhancing security by not storing sensitive information on the instance.
 
+# Now create the cluster with the following command
+
 
 eksctl create cluster --name ezlearn-cluster --region us-east-1 --node-type t3.medium --nodes 2
 
-After the cluster is created, update your kubeconfig file to ensure kubectl can interact with your new cluster:
 
-
-aws eks --region us-east-1 update-kubeconfig --name ezlearn-cluster
-
-Step 1: Prepare Your Amazon EKS Cluster
 
 First, ensure your EKS cluster is ready.
 
@@ -47,17 +48,12 @@ First, ensure your EKS cluster is ready.
 
 
 
-# Step 2: Install and Configure Jenkins
+# Step 2: Configure Jenkins
 
-# Install Jenkins:
-
-Download and install Jenkins on a suitable server. You can find the latest Jenkins package for your operating system at Jenkins.io.
 
 Install Necessary Plugins:
 
 Navigate to Manage Jenkins > Manage Plugins > Available and install these plugins:
-
-Git plugin – for source code management.
 
 Maven Integration plugin – for building Java applications.
 Docker Pipeline – for Docker operations.
@@ -65,26 +61,37 @@ Kubernetes CLI Plugin – to interact with your Kubernetes cluster.
 
 Configure Jenkins Tools:
 Go to Manage Jenkins > Global Tool Configuration.
-Set up Maven, JDK, and any other tools you may need.
+Select JDK and click to install automatically
+
+Set up Maven, give it a name maven. do not select automatic install, just give the path of maven
+maven path will be /opt/maven
+
+Apply and save
 
 # Step 3: Add Required Credentials in Jenkins
 Add Credentials:
 Go to Manage Jenkins > Manage Credentials > Jenkins > Global credentials (unrestricted) > Add Credentials.
-Add credentials for your Git repository, Docker Hub, and a kubeconfig for Kubernetes:
-Git credentials: Username with password.
-Docker Hub credentials: Username with password.
-Kubeconfig: Use the Secret file type to upload your kubeconfig file.
-Retrieve the Kubeconfig File
-Default Location: By default, the kubeconfig entries are stored in the ~/.kube/config file on your machine. You can copy this file or reference it directly.
+Add credentials for Docker Hub, and a kubeconfig for Kubernetes:
 
-Using the Kubeconfig in Jenkins
-Once you have your kubeconfig file:
+Docker Hub credentials select Username and password, then input you actuall docker account user-name and password
+give it any ID of your choice
 
-Upload to Jenkins:
+Add credentials for kubernetes
+
+Go to jenkins terminal and run the command 
+
+sudo cat .kube/config
+
+copy the out and save in your local computer with name config
+
+Add Credentials:
 Go to Manage Jenkins > Manage Credentials > Jenkins > Global credentials (unrestricted) > Add Credentials.
-Choose Secret file as the type.
-Upload your kubeconfig file.
-Assign an ID that you can refer to in your Jenkins jobs.
+Add credentials for Kubernetes:
+
+Select secret file, click browse and upload the config file you saved in your local pc
+
+
+Assign any ID of your choice that you can refer to in your Jenkins jobs.
 
 # Step 4: Create a Jenkins Job
 
@@ -93,7 +100,7 @@ Create a New Freestyle Project:
 Go to Jenkins main dashboard.
 Click New Item, select Freestyle project, and enter a name for the project.
 Configure Source Code Management:
-Select Git and enter the Repository URL and credentials.
+Select Git and enter the Repository URL 
 
 In your job configuration, go to the Build Environment section.
 Check the Use secret text(s) or file(s) option.
@@ -105,7 +112,7 @@ These variables (DOCKER_USERNAME and DOCKER_PASSWORD) will now be available as e
 
 Add Build Steps:
 
-Invoke top-level Maven targets: Set Goals as clean package to build your Java application.
+Invoke top-level Maven targets: Set Goals as clean install to build your Java application.
 
 Build / Publish Docker Image:
 
@@ -116,7 +123,7 @@ docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 docker build -t yourdockerhubuser/tomcatmavenapp:latest .
 
-docker push yourdockerhubuser/tomcatmavenapp:latest .
+docker push yourdockerhubuser/tomcatmavenapp:latest 
 
 
 # Deploy to Kubernetes:
@@ -130,12 +137,11 @@ Variable: Give it a name, like KUBECONFIG.
 Credential: Select the kubeconfig credential you stored earlier.
 This setup will expose the path to the kubeconfig file as an environment variable ($KUBECONFIG) within the job.
 
-Add Execute Shell Build Step:
 Use the $KUBECONFIG environment variable in your shell commands to reference the kubeconfig file:
 
 
-kubectl --kubeconfig $KUBECONFIG apply -f deployment.yaml
-kubectl --kubeconfig $KUBECONFIG apply -f service.yaml
+kubectl --kubeconfig $KUBECONFIG apply -f deployment.yml
+kubectl --kubeconfig $KUBECONFIG apply -f service.yml
 Run the Job:
 Click Build Now to start the Jenkins job.
 Verify Deployment:
