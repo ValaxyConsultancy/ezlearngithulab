@@ -8,7 +8,7 @@ pipeline {
         }
         stage('delete eks cluste') {
             steps {
-                sh "eksctl delete cluster --name ezlearn-cluster"
+                sh "eksctl delete cluster --name ezlearn-cluster --region us-east-1"
             }
         }
     }
