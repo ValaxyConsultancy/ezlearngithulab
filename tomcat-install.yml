@@ -1,0 +1,118 @@
+---
+- name: install and configure tomcat 9
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install Java
+      apt:
+        name: default-jdk
+        state: present
+
+    - name: Add a group for Tomcat
+      group:
+        name: tomcat
+        state: present
+
+    - name: Add a user for Tomcat
+      user:
+        name: tomcat
+        group: tomcat
+        shell: /bin/false
+        create_home: false
+
+    - name: Download Tomcat
+      get_url:
+        url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.1/bin/apache-tomcat-9.0.1.tar.gz"
+        dest: "/tmp/apache-tomcat-9.0.1.tar.gz"
+
+    - name: Create Tomcat directory
+      file:
+        path: "/opt/tomcat"
+        state: directory
+        owner: tomcat
+        group: tomcat
+
+    - name: Extract Tomcat archive
+      unarchive:
+        src: "/tmp/apache-tomcat-9.0.1.tar.gz"
+        dest: "/opt/tomcat"
+        remote_src: yes
+        extra_opts: ["--strip-components=1"]
+        owner: tomcat
+        group: tomcat
+
+    - name: Update permissions
+      file:
+        path: "{{ item }}"
+        mode: "u+rwx,g+rwx,o+r"
+        owner: tomcat
+        group: tomcat
+      loop:
+        - "/opt/tomcat/bin"
+        - "/opt/tomcat/conf"
+        - "/opt/tomcat/lib"
+        - "/opt/tomcat/webapps"
+        - "/opt/tomcat/work"
+        - "/opt/tomcat/temp"
+        - "/opt/tomcat/logs"
+
+    - name: Delete existing tomcat-users.xml
+      file:
+        path: "/opt/tomcat/conf/tomcat-users.xml"
+        state: absent
+
+    - name: Create new tomcat-users.xml
+      copy:
+        dest: "/opt/tomcat/conf/tomcat-users.xml"
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <tomcat-users xmlns="http://tomcat.apache.org/xml"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+                        version="1.0">
+            <role rolename="manager-gui"/>
+            <role rolename="manager-script"/>
+            <role rolename="manager-jmx"/>
+            <role rolename="manager-status"/>
+            <role rolename="admin-gui"/>
+            <role rolename="admin-script"/>
+            <user username="admin" password="password" roles="manager-gui,manager-script,manager-jmx,manager-status,admin-gui,admin-script"/>
+          </tomcat-users>
+        owner: tomcat
+        group: tomcat
+        mode: 0640
+
+    - name: Create Tomcat systemd file
+      copy:
+        dest: "/etc/systemd/system/tomcat.service"
+        content: |
+          [Unit]
+          Description=Apache Tomcat Web Application Container
+          After=network.target
+          [Service]
+          Type=forking
+          Environment=JAVA_HOME=/usr/lib/jvm/default-java
+          Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
+          Environment=CATALINA_HOME=/opt/tomcat
+          Environment=CATALINA_BASE=/opt/tomcat
+          Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
+          Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
+          ExecStart=/opt/tomcat/bin/startup.sh
+          ExecStop=/opt/tomcat/bin/shutdown.sh
+          User=tomcat
+          Group=tomcat
+          Umask=0007
+          RestartSec=10
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - Restart Tomcat
+
+  handlers:
+    - name: Restart Tomcat
+      systemd:
+        name: tomcat
+        state: restarted
+        enabled: yes
+
