@@ -1,3 +1,4 @@
+
 From tomcat:latest
 # Maintainer
 MAINTAINER "shufai"
@@ -9,3 +10,4 @@ COPY ./*.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
 # Start Tomcat when the container launches
 CMD ["catalina.sh", "run"]
+
