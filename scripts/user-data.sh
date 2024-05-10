@@ -31,6 +31,7 @@ echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] 
 apt update
 apt install -y docker-ce docker-ce-cli containerd.io
 systemctl enable docker
+systemctl start docker
 usermod -aG docker $USER
 usermod -aG docker jenkins
 newgrp docker
