@@ -1,0 +1,57 @@
+# version: 0.2
+
+# phases:
+#   install:
+#     runtime-versions:
+#       java: corretto11
+#     commands:
+#       - echo Installing Maven
+#       - yum install -y maven
+#   pre_build:
+#     commands:
+#       - echo Entering the pre_build phase
+#   build:
+#     commands:
+#       - echo Entering the build phase
+#       - mvn clean package
+#   post_build:
+#     commands:
+#       - echo Entering the post_build phase
+#       - echo Build completed on `date`
+# artifacts:
+#   files:
+#     - '**/*.war'
+#   discard-paths: yes
+#   base-directory: target
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+    commands:
+      - echo "Installing Maven"
+      - yum install -y maven
+  pre_build:
+    commands:
+      - echo "Entering the pre_build phase"
+  build:
+    commands:
+      - echo "Entering the build phase"
+      - mvn clean package
+  post_build:
+    commands:
+      - echo "Entering the post_build phase"
+      - echo "Build completed on $(date)"
+      - echo "Listing contents of target directory before renaming:"
+      - ls -l target/
+      - echo "Renaming WAR file to ROOT.war"
+      - mv target/*.war target/ROOT.war
+      - echo "Listing contents of target directory after renaming:"
+      - ls -l target/
+artifacts:
+  files:
+    - ROOT.war
+  base-directory: target
+  discard-paths: yes
