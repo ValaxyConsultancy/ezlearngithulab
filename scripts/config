@@ -1,0 +1,33 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJYzJBNGgzemtGQVF3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TkRBMk1ESXhOREl5TVRkYUZ3MHpOREExTXpFeE5ESTNNVGRhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURIVkp5dmdBNGY2a0FSbFpGa0Q2dTMwYUorUndYd0dNVCsvMHhpYyt4UE1MZ3Z2aS9oSDh0R080NGsKY3dOa1hsTXRKRDJpMkJINytiZlRYdVNnUmgxRS93SWpPQkhuR3hoOE9LU1BSSTJKSkdJaGUvVVN2bk9WditzNQp5UE5qdmdYeVlLWno2WmZCY2JUWmNMRnRpMzRzTGlSNDExcmhmRnpENTY3RExCY05OVzRmZXFUTEhwVDRCRlBmCjJjbEp5QXRCd1o4V3RPQjBvcCs2L3FWRUord05NYkNib1RBYVplRUcycmtrK3JneVBRVzM0TTh5RjhFaVFYZTIKNlllVG5pV2RrWGdiNWlGdm55cGJpNlNMZmg3bTlQSzJNcUo2amtjbHEvSlFOMWV4dEdkdUEvMTdyQVhORkgxUgo5SmlxdUt1c3FtSHd5M1I3R1RUY2RNV21qUW4xQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJTY0hGYk4rOU9EcCtWMnY3Qlc5WXNOUG50WjdqQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQnJHVU45TTJ6ZApXWDUvVkFMZUViRHBSRWZVVXRicVpOS0EyTUNYQ3ZLZUJrck14VkdycDJYTnk1RFNvdy9zVXZTYjBpU2dnRld3CmdVRTgrdDJENk9OZmJoblRvK3BPQ1dvdFc0SnB1OUFxODBNVXZWTU1BUDNFRklwZllmNDJwaVJ6TFlPNytSRk0KSEZhTFQ4RDJsWTJsc3Rna3hzSlQycXk5ZjU4Nzd4aVVRUDZKNzRneDlSeUpINDRhak1lVkJVLzJReU5JK3BrTgp1K2xCdS9MY3J1dEhzbHdXeS9JbkFXU2ttYy8wMEMySzNaVy9pNDRaQ0NKeTg1cUIrTVpCRTUvamtxMkt5RFhyCmFBWXVocy9EWWR6VmUvVUVlVGx3aThiRllQY0tIK0l0RitoS3loRGZMd3ZmS0RHUnQ5WEx5d2haSDRHbUZvZGQKY2FOaDZMMW56ejcyCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    server: https://86088E2B0DBFDCF1FB59A7FCF9CAB977.gr7.us-east-1.eks.amazonaws.com
+  name: ezlearn-cluster.us-east-1.eksctl.io
+contexts:
+- context:
+    cluster: ezlearn-cluster.us-east-1.eksctl.io
+    user: i-0284a3cf23dab4de2@ezlearn-cluster.us-east-1.eksctl.io
+  name: i-0284a3cf23dab4de2@ezlearn-cluster.us-east-1.eksctl.io
+current-context: i-0284a3cf23dab4de2@ezlearn-cluster.us-east-1.eksctl.io
+kind: Config
+preferences: {}
+users:
+- name: i-0284a3cf23dab4de2@ezlearn-cluster.us-east-1.eksctl.io
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - eks
+      - get-token
+      - --output
+      - json
+      - --cluster-name
+      - ezlearn-cluster
+      - --region
+      - us-east-1
+      command: aws
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      provideClusterInfo: false
