@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tomcatmavenapp-deployment
+  namespace: default
 spec:
   replicas: 3
   selector:
@@ -15,9 +16,9 @@ spec:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '8081'
         prometheus.io/path: '/metrics'
-  spec:
-    containers:
-    - name: tomcatmavenapp
-      image: mitechllc/tomcatmavenapp:latest
-      ports:
-      - containerPort: 8081
+    spec:
+      containers:
+      - name: tomcatmavenapp
+        image: mitechllc/tomcatmavenapp:latest
+        ports:
+        - containerPort: 8081
