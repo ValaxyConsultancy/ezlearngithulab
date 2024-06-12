@@ -10,24 +10,25 @@ scrape_configs:
       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
     relabel_configs:
-      - source_labels: [__meta_kubernetes_namespace]
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
-        regex: default
-      - source_labels: [__meta_kubernetes_service_name]
-        action: keep
-        regex: kubernetes
+        regex: default;kubernetes;https
 
   - job_name: 'kubernetes-nodes'
     kubernetes_sd_configs:
       - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
     relabel_configs:
       - action: labelmap
         regex: __meta_kubernetes_node_label_(.+)
       - target_label: __address__
-        replacement: kubernetes.default.svc:443
+        replacement: ${1}:10250
       - source_labels: [__meta_kubernetes_node_name]
         target_label: __metrics_path__
-        replacement: /api/v1/nodes/${1}/proxy/metrics
+        replacement: /metrics
 
   - job_name: 'kubernetes-pods'
     kubernetes_sd_configs:
