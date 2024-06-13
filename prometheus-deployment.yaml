@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -16,20 +15,13 @@ spec:
       serviceAccountName: prometheus
       containers:
       - name: prometheus
-        image: prom/prometheus:v2.22.0
-        args:
-          - "--config.file=/etc/prometheus/prometheus.yml"
-          - "--storage.tsdb.path=/prometheus"
+        image: prom/prometheus:v2.39.1
         ports:
         - containerPort: 9090
         volumeMounts:
-        - name: config-volume
-          mountPath: /etc/prometheus
-        - name: storage-volume
-          mountPath: /prometheus
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/
       volumes:
-      - name: config-volume
+      - name: prometheus-config-volume
         configMap:
           name: prometheus-config
-      - name: storage-volume
-        emptyDir: {}
