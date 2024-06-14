@@ -35,10 +35,12 @@ public class MetricsContextListener implements ServletContextListener {
         new ProcessorMetrics().bindTo(prometheusRegistry);
         new UptimeMetrics().bindTo(prometheusRegistry);
 
-        // Get the Manager instance from your Tomcat context
-        Manager manager = ...; // Obtain the Manager instance from your application context
-        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        new TomcatMetrics(manager, Collections.emptyList(), mBeanServer).bindTo(prometheusRegistry);
+        // Placeholder for getting the Manager instance from your Tomcat context
+        Manager manager = getManagerInstance();
+        if (manager != null) {
+            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+            new TomcatMetrics(manager, Collections.emptyList(), mBeanServer).bindTo(prometheusRegistry);
+        }
 
         sce.getServletContext().setAttribute("prometheusRegistry", prometheusRegistry);
     }
@@ -46,5 +48,11 @@ public class MetricsContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Clean up if necessary
+    }
+
+    private Manager getManagerInstance() {
+        // Logic to get the Manager instance from your Tomcat context
+        // This method should be implemented to return the actual Manager instance
+        return null;
     }
 }
