@@ -1,29 +1,25 @@
 package com.ezlearn.metrics;
 
-import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.exporter.common.TextFormat;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
+
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Writer;
 
+@WebServlet("/metrics")
 public class MetricsServlet extends HttpServlet {
-
-    private final CollectorRegistry registry;
-
-    public MetricsServlet(CollectorRegistry registry) {
-        this.registry = registry;
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType(TextFormat.CONTENT_TYPE_004);
-        try (Writer writer = resp.getWriter()) {
-            TextFormat.write004(writer, registry.metricFamilySamples());
-            writer.flush();
+        PrometheusMeterRegistry prometheusRegistry = (PrometheusMeterRegistry) getServletContext().getAttribute("prometheusRegistry");
+        if (prometheusRegistry != null) {
+            resp.setContentType("text/plain");
+            resp.getWriter().write(prometheusRegistry.scrape());
+        } else {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }
