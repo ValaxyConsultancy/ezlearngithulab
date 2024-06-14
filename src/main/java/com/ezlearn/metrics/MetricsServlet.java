@@ -1,23 +1,29 @@
 package com.ezlearn.metrics;
 
-import io.micrometer.prometheus.PrometheusMeterRegistry;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.common.TextFormat;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Writer;
 
 public class MetricsServlet extends HttpServlet {
 
-    private final PrometheusMeterRegistry prometheusRegistry;
+    private final CollectorRegistry registry;
 
-    public MetricsServlet(PrometheusMeterRegistry prometheusRegistry) {
-        this.prometheusRegistry = prometheusRegistry;
+    public MetricsServlet(CollectorRegistry registry) {
+        this.registry = registry;
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/plain");
-        resp.getWriter().write(prometheusRegistry.scrape());
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.setContentType(TextFormat.CONTENT_TYPE_004);
+        try (Writer writer = resp.getWriter()) {
+            TextFormat.write004(writer, registry.metricFamilySamples());
+            writer.flush();
+        }
     }
 }

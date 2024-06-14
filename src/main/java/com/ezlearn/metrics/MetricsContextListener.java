@@ -8,11 +8,9 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.core.instrument.binder.tomcat.TomcatMetrics;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
-import io.micrometer.prometheus.PrometheusConfig;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import org.apache.catalina.Manager;
 
 @WebListener
 public class MetricsContextListener implements ServletContextListener {
@@ -31,21 +29,16 @@ public class MetricsContextListener implements ServletContextListener {
         new LogbackMetrics().bindTo(prometheusRegistry);
         new ProcessorMetrics().bindTo(prometheusRegistry);
         new UptimeMetrics().bindTo(prometheusRegistry);
-
-        // Assuming you have a method to get the Manager instance
-        Manager manager = getManagerFromContext(sce.getServletContext());
-        new TomcatMetrics(manager, null).bindTo(prometheusRegistry);
-
+        TomcatMetrics.monitorTomcat(prometheusRegistry);
         sce.getServletContext().setAttribute("prometheusRegistry", prometheusRegistry);
-        sce.getServletContext().addServlet("metricsServlet", new MetricsServlet(prometheusRegistry)).addMapping("/metrics");
+
+        // Register metrics servlet
+        sce.getServletContext().addServlet("metricsServlet", new MetricsServlet(prometheusRegistry.getPrometheusRegistry()))
+                .addMapping("/metrics");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         // Clean up if necessary
-    }
-
-    private Manager getManagerFromContext(javax.servlet.ServletContext context) {
-        return (Manager) context.getAttribute("org.apache.catalina.Manager");
     }
 }
