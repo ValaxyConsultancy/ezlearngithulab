@@ -7,7 +7,9 @@ import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.core.instrument.binder.tomcat.TomcatMetrics;
+import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -29,12 +31,9 @@ public class MetricsContextListener implements ServletContextListener {
         new LogbackMetrics().bindTo(prometheusRegistry);
         new ProcessorMetrics().bindTo(prometheusRegistry);
         new UptimeMetrics().bindTo(prometheusRegistry);
-        TomcatMetrics.monitorTomcat(prometheusRegistry);
+        new TomcatMetrics().bindTo(prometheusRegistry); // Assuming default Tomcat Manager
+        
         sce.getServletContext().setAttribute("prometheusRegistry", prometheusRegistry);
-
-        // Register metrics servlet
-        sce.getServletContext().addServlet("metricsServlet", new MetricsServlet(prometheusRegistry.getPrometheusRegistry()))
-                .addMapping("/metrics");
     }
 
     @Override
