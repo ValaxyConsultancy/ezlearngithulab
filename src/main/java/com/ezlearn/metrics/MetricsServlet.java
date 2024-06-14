@@ -2,20 +2,17 @@ package com.ezlearn.metrics;
 
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/metrics")
 public class MetricsServlet extends HttpServlet {
 
-    private PrometheusMeterRegistry prometheusRegistry;
+    private final PrometheusMeterRegistry prometheusRegistry;
 
-    @Override
-    public void init() throws ServletException {
-        this.prometheusRegistry = (PrometheusMeterRegistry) getServletContext().getAttribute("prometheusRegistry");
+    public MetricsServlet(PrometheusMeterRegistry prometheusRegistry) {
+        this.prometheusRegistry = prometheusRegistry;
     }
 
     @Override
