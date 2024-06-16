@@ -1,7 +1,7 @@
 # Valavaxyconsultancyapi
 
-# Follow these steps to setup and deploy java app to k8s
-Make sure you use the user-data.sh script when creating the jenkins master now. After the instance is up and running, run the folowing commands on ther terminal to confirm installation;
+# Follow these steps to setup jenkins, kubernetes cluster in eks, build deploy java app and monitoring using prometheus and grafana
+when creating the jenkins master, make sure you use the jenkins-user-data.sh script find this file under scripts folder . After the jenkins instance is up and running, access jenkins from your browser using instance "public-ip:8080" also run the folowing commands on ther terminal to confirm master node is fully configured to run kube and eks commands;
 
 ```bash
 aws --version
@@ -14,7 +14,7 @@ eksctl version
 ```
 
 # Step 1  Creating and Attaching an IAM Role to the Jenkins Instance
-To attach an IAM role to an EC2 instance for EKS management:
+You will ne to create and attach an IAM role to the jenkins instance for EKS management:
 
 Create the IAM Role:
 
@@ -25,7 +25,7 @@ Attach policies that grant permissions needed to manage EKS.
 just give admin access 
 Attach the Role to the EC2 Instance:
 Go to the EC2 dashboard in the AWS Management Console.
-Find the EC2 instance that you use as your management node.
+Find the EC2 instance that you use as your management node "jenkins".
 Select the instance, then click on Actions > Security > Modify IAM role.
 Select the IAM role you created from the drop-down menu and apply the changes.
 Configuring the Instance
@@ -84,7 +84,7 @@ Go to jenkins terminal and run the command
 ```bash
 sudo cat .kube/config
 ```
-copy the out and save in your local computer with name config
+copy the content of the file and save it in your local computer with name config
 
 Add Credentials:
 Go to Manage Jenkins > Manage Credentials > Jenkins > Global credentials (unrestricted) > Add Credentials.
@@ -93,7 +93,7 @@ Add credentials for Kubernetes:
 Select secret file, click browse and upload the config file you saved in your local pc
 
 
-Assign any ID of your choice that you can refer to in your Jenkins jobs.
+Assign any ID name of your choice that you can refer to in your Jenkins jobs.
 
 # Step 4: Create a Jenkins Job
 
@@ -106,19 +106,25 @@ Select Git and enter the Repository URL
 
 In your job configuration, go to the Build Environment section.
 Check the Use secret text(s) or file(s) option.
-Add a new binding for each of the username and password:
-Type: Secret text.
-Variable: DOCKER_USERNAME for the username, DOCKER_PASSWORD for the password.
+Add a new binding for each of the username and password by selecting username and password (separated):
+under User Variable type DOCKER_USERNAME for the username, under Password Variable type DOCKER_PASSWORD for the password.
 Credentials: Select the credentials you added previously.
 These variables (DOCKER_USERNAME and DOCKER_PASSWORD) will now be available as environment variables in your build steps.
 
-Add Build Steps:
+ADD config for kubeconfig
+Click Add annd select secret file
+Variable: Give it a name, like KUBECONFIG.
+Credential: Select the kubeconfig credential you stored earlier.
+This setup will expose the path to the kubeconfig file as an environment variable ($KUBECONFIG) within the job.
 
-Invoke top-level Maven targets: Set Goals as clean install to build your Java application.
+# Build Steps
+Click on Add Build Steps and select Invoke top-level Maven targets:
+ Set Goals as "clean install" to build your Java application.
 
 Build / Publish Docker Image:
-
+Click on Add Build Steps and select execute shell
 Use a shell step to log in to Docker, build the Docker image, and push it to Docker Hub.
+Copy the commands below and paste
 
 ```bash
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
@@ -128,22 +134,37 @@ docker build -t yourdockerhubuser/tomcatmavenapp:latest .
 docker push yourdockerhubuser/tomcatmavenapp:latest 
 ```
 
-# Deploy to Kubernetes:
+# Deploy the entire pipeline to Kubernetes:
 
 Use another shell step to apply Kubernetes deployment manifests.
 
-Go to your job configuration and scroll down to the Build Environment section.
-Check the box Use secret text(s) or file(s).
-Add a new Secret file binding:
-Variable: Give it a name, like KUBECONFIG.
-Credential: Select the kubeconfig credential you stored earlier.
-This setup will expose the path to the kubeconfig file as an environment variable ($KUBECONFIG) within the job.
 
-Use the $KUBECONFIG environment variable in your shell commands to reference the kubeconfig file:
 
 ```bash
-kubectl --kubeconfig $KUBECONFIG apply -f deployment.yml
-kubectl --kubeconfig $KUBECONFIG apply -f service.yml
+# Apply Prometheus configurations
+kubectl --kubeconfig $CONFIG apply -f prometheus-serviceaccount.yaml
+kubectl --kubeconfig $CONFIG apply -f prometheus-clusterrole.yaml
+kubectl --kubeconfig $CONFIG apply -f prometheus-clusterrolebinding.yaml
+kubectl --kubeconfig $CONFIG apply -f prometheus-configmap.yaml
+kubectl --kubeconfig $CONFIG apply -f prometheus-deployment.yaml
+kubectl --kubeconfig $CONFIG apply -f prometheus-service.yaml
+
+kubectl --kubeconfig $CONFIG apply -f node-exporter-daemonset.yaml
+
+kubectl --kubeconfig $CONFIG apply -f grafana-deployment.yaml
+kubectl --kubeconfig $CONFIG apply -f grafana-service.yaml
+
+# Apply application deployment and service
+kubectl --kubeconfig $CONFIG apply -f deployment.yml
+kubectl --kubeconfig $CONFIG apply -f service.yml
+
+kubectl --kubeconfig $CONFIG rollout restart deployment prometheus -n default
+kubectl --kubeconfig $CONFIG rollout restart deployment grafana -n default
+kubectl --kubeconfig $CONFIG rollout restart deployment tomcatmavenapp-deployment -n default
+
+# Check status of deployments and services
+kubectl --kubeconfig $CONFIG get deployments -n default
+kubectl --kubeconfig $CONFIG get services -n default
 ```
 
 # Run the Job:
